@@ -1,0 +1,20 @@
+<customlist scriptid="customlist_po_approval_type">
+  <description></description>
+  <isinactive>F</isinactive>
+  <isordered>T</isordered>
+  <name>PO Approval Type</name>
+  <customvalues>
+    <customvalue scriptid="1">
+      <isinactive>F</isinactive>
+      <value>Inventory</value>
+    </customvalue>
+    <customvalue scriptid="2">
+      <isinactive>F</isinactive>
+      <value>Non-Inventory</value>
+    </customvalue>
+    <customvalue scriptid="3">
+      <isinactive>F</isinactive>
+      <value>Inventory/Non-Inventory</value>
+    </customvalue>
+  </customvalues>
+</customlist>

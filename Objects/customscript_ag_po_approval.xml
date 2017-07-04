@@ -1,0 +1,27 @@
+<usereventscript scriptid="customscript_ag_po_approval">
+  <aftersubmitfunction>afterSubmit_SetThresholdAmtOnPO</aftersubmitfunction>
+  <beforeloadfunction>beforeLoad_approvalLockRecord</beforeloadfunction>
+  <beforesubmitfunction>beforeSubmit_setApprovalHierarchy</beforesubmitfunction>
+  <description></description>
+  <isinactive>F</isinactive>
+  <name>Agilysys PO Approval</name>
+  <notifyadmins>F</notifyadmins>
+  <notifyemails></notifyemails>
+  <notifyowner>T</notifyowner>
+  <notifyuser>F</notifyuser>
+  <scriptfile>[/SuiteScripts/NS SuiteScripts/PO_Approval_Hierarchy.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy1">
+      <allemployees>F</allemployees>
+      <allpartners>F</allpartners>
+      <allroles>T</allroles>
+      <audslctrole></audslctrole>
+      <eventtype></eventtype>
+      <isdeployed>T</isdeployed>
+      <loglevel>DEBUG</loglevel>
+      <recordtype>PURCHASEORDER</recordtype>
+      <runasrole>ADMINISTRATOR</runasrole>
+      <status>TESTING</status>
+    </scriptdeployment>
+  </scriptdeployments>
+</usereventscript>

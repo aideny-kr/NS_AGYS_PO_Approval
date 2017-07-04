@@ -1,0 +1,18 @@
+<customlist scriptid="customlist_ag_po_approval_status">
+    <isordered>T</isordered>
+    <name>AGYS PO Approval Status List</name>
+    <customvalues>
+        <customvalue scriptid="1">
+            <value>Pending Submission</value>
+        </customvalue>
+        <customvalue scriptid="2">
+            <value>Pending Approval</value>
+        </customvalue>
+        <customvalue scriptid="3">
+            <value>Approved</value>
+        </customvalue>
+        <customvalue scriptid="4">
+            <value>Rejected</value>
+        </customvalue>
+    </customvalues>
+</customlist>

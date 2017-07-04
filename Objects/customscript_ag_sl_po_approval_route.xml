@@ -1,0 +1,14 @@
+<suitelet scriptid="customscript_ag_sl_po_approval_route">
+    <defaultfunction>suitelet</defaultfunction>
+    <name>AGYS PO Approval Route</name>
+    <notifyowner>T</notifyowner>
+    <scriptfile>[/SuiteScripts/NS SuiteScripts/PO_Approval_Route_Suitelet.js]</scriptfile>
+    <scriptdeployments>
+        <scriptdeployment scriptid="customdeploy_1">
+            <isdeployed>T</isdeployed>
+            <loglevel>DEBUG</loglevel>
+            <status>TESTING</status>
+            <title>AGYS PO Approval Route Suitelet</title>
+        </scriptdeployment>
+    </scriptdeployments>
+</suitelet>
