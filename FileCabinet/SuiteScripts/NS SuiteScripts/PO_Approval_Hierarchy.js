@@ -7,11 +7,13 @@
  * 
  */
 
-function callPOSuitelet(action) {
+function callPOSuitelet(action, hierarchy, nextApprover) {
 	var poId = nlapiGetRecordId();
 	var url = nlapiResolveURL('SUITELET', 'customscript_ag_sl_po_approval_route', 'customdeploy_1');
-	url += '&poId='+poId;
-	url += '&action='+action;
+	url += '&poId=' + poId;
+	url += '&action=' + action;
+	url += '&hierarchy=' + hierarchy;
+	url += '&nextApprover=' + nextApprover;
 	window.open(url, '_self');
 }
 
@@ -49,14 +51,36 @@ function beforeLoad_approvalLockRecord(type, form, request) {
 					
 					if(status == '1') {
 						// when status is pending submit
-						form.addButton('custpage_po_submit_approver_btn', 'Submit For Approval', "callPOSuitelet('submit')");
+						
+						form.addButton('custpage_po_submit_approver_btn', 'Submit For Approval', 
+								'callPOSuitelet('+ '1, ' + appHierarchyRecId + ')');
+						
 					}
 					
 					if(status == '2') {
 						// when status is pending approval
+						
+						var userId = nlapiGetUser();
+						var roleId = nlapiGetRole();
+						
+						// when status is pending approval
 						form.removeButton('submitedit');
-						form.addButton('custpage_po_approval_btn', 'Approve', "callSuitelet('approve')");
-						form.addButton('custpage_po_reject_btn', 'Reject', "callSuitelet('reject')");
+						form.removeButton('edit');
+						form.removeButton('print');
+						
+						// Admin or Next Approver can approve 
+						if(roleId == '3' || userId == nextApprover) {
+
+							form.addButton('custpage_po_approval_btn', 'Approve', 
+									'callPOSuitelet(' + 2 + ', ' + appHierarchyRecId +', ' + nextApprover +')');
+							form.addButton('custpage_po_reject_btn', 'Reject', 
+									'callPOSuitelet(' + 3 + ', ' + appHierarchyRecId + ')');
+						}
+						
+					}
+					
+					if(status == '4') {
+						// when status is reject
 					}
 				}
 				
@@ -206,32 +230,37 @@ function afterSubmit_SetThresholdAmtOnPO(type){
     		nlapiLogExecution('DEBUG', LogTitle,'Operation Type is not Edit or Create - Exiting Script');
     		return;
     	}
+    	
+    	var executionContext = nlapiGetContext().getExecutionContext();
+    	
+    	if(executionContext != 'suitelet') {
+        	var THRESHOLD_CURRENCY = nlapiGetContext().getSetting('SCRIPT','custscript_threshold_currency2');
+        	var recPO = nlapiGetNewRecord();
+        	var recID = nlapiGetRecordId();
+        	var nonInvTotal = +nlapiGetFieldValue('custbody_ag_noninv_subtotal') || 0;
+        	var invTotal = +nlapiGetFieldValue('custbody_ag_inv_subtotal') || 0;
+        	var stTotal = nonInvTotal >= invTotal ? nonInvTotal : invTotal;
+        	var stCurrId = recPO.getFieldValue('currency');
 
-    	var THRESHOLD_CURRENCY = nlapiGetContext().getSetting('SCRIPT','custscript_threshold_currency');
-    	var recPO = nlapiGetNewRecord();
-    	var recID = nlapiGetRecordId();
-    	var nonInvTotal = +nlapiGetFieldValue('custbody_ag_noninv_subtotal') || 0;
-    	var invTotal = +nlapiGetFieldValue('custbody_ag_inv_subtotal') || 0;
-    	var stTotal = nonInvTotal >= invTotal ? nonInvTotal : invTotal;
-    	var stCurrId = recPO.getFieldValue('currency');
+        	nlapiLogExecution('DEBUG', LogTitle,
+        			'PO ID: ' + recID + '<br>' +
+        			'Threshold Currency: ' + THRESHOLD_CURRENCY + '<br>' +
+        			'PO Currency: ' + stCurrId);
 
-    	nlapiLogExecution('DEBUG', LogTitle,
-    			'PO ID: ' + recID + '<br>' +
-    			'Threshold Currency: ' + THRESHOLD_CURRENCY + '<br>' +
-    			'PO Currency: ' + stCurrId);
+        	if(stCurrId== THRESHOLD_CURRENCY){
+        		nlapiSubmitField('purchaseorder',nlapiGetRecordId(),'custbody_poapv_threshold_amt',stTotal);
+        		nlapiLogExecution('DEBUG', LogTitle, 'PO Threshold Amount set on PO: ' + stTotal);
+        	}
 
-    	if(stCurrId== THRESHOLD_CURRENCY){
-    		nlapiSubmitField('purchaseorder',nlapiGetRecordId(),'custbody_poapv_threshold_amt',stTotal);
-    		nlapiLogExecution('DEBUG', LogTitle, 'PO Threshold Amount set on PO: ' + stTotal);
+        	else{
+        		var stExchDt = recPO.getFieldValue('trandate');
+        		var stThresholdAmt = convertForeignAmount(stExchDt,stTotal,stCurrId,THRESHOLD_CURRENCY);
+
+        		nlapiSubmitField('purchaseorder',nlapiGetRecordId(),'custbody_poapv_threshold_amt', stThresholdAmt);
+        		nlapiLogExecution('DEBUG', LogTitle, 'PO Threshold Amount set on PO: ' + stThresholdAmt);
+        	}
     	}
 
-    	else{
-    		var stExchDt = recPO.getFieldValue('trandate');
-    		var stThresholdAmt = convertForeignAmount(stExchDt,stTotal,stCurrId,THRESHOLD_CURRENCY);
-
-    		nlapiSubmitField('purchaseorder',nlapiGetRecordId(),'custbody_poapv_threshold_amt', stThresholdAmt);
-    		nlapiLogExecution('DEBUG', LogTitle, 'PO Threshold Amount set on PO: ' + stThresholdAmt);
-    	}
     }
 
     catch (error){
